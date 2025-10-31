@@ -1,2 +1,2 @@
 # pokemon_app
-An experiment to further learn about JavaScript with one the best animes ever, Pokemon!
+An experiment to further learn about JavaScript with one of the best animes ever, Pokemon!
