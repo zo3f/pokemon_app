@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Bulbasaur Fan Site</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/emulatorjs/4.2.1/emulator.min.js"></script> <!-- Include EmulatorJS -->
+    <script src="script.js" defer></script> <!-- Link to your updated JavaScript -->
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <a href="#games" class="header-link">Welcome to Bulbasaur's World</a>
+            </h1>
+            <nav>
+                <ul>
+                    <li><a href="#about">About Bulbasaur</a></li>
+                    <li><a href="rom_database.html">ROM Database</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <section id="about">
+            <h2>About Bulbasaur</h2>
+            <img src="bulbasaur_image.png" alt="Bulbasaur" class="bulbasaur-image">
+            <p>Bulbasaur is a dual-type Grass/Poison Pokémon known for its adorable appearance and unique features. Not only does he look cute, but he also has a tough little dinosaur vibe that sets him apart from other Pokémon.</p>
+            <p>He is my favorite Pokémon because of his charming looks and strength. Bulbasaur's design balances both adorable and fierce, making him a fantastic companion in the Pokémon world!</p>
+        </section>
+
+        <section id="games">
+            <h2>Play Game Boy Advance Games</h2>
+            <input type="file" id="romInput" accept=".gba">
+            <button onclick="uploadRom()">Upload ROM</button>
+            <div id="romList"></div>
+            <button onclick="loadGame()">Load Game & Play</button>
+            <div id="gameArea">
+                <!-- Emulator will render here -->
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2025 Bulbasaur Fan Site</p>
+        </footer>
+    </div>
+</body>
+</html>
