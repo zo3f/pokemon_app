@@ -1,0 +1,75 @@
+body {
+    background-image: url('bulbasaur-background.jpg'); 
+    background-size: cover;
+    color: white;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh; /* Full height utilization */
+}
+
+.container {
+    max-width: 1200px; /* Wider container for better use of screen space */
+    margin: auto; /* Center the container */
+    padding: 20px; /* Padding around the container */
+    height: 100%; /* Full height of the body */
+    display: flex; /* Use flex for layout */
+    flex-direction: column; /* Column layout */
+    justify-content: flex-start; /* Start stacking at the top */
+}
+
+header {
+    text-align: center;
+    padding: 20px;
+    background-color: rgba(0, 128, 0, 0.7);
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0; /* Remove default margin */
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+    transition: color 0.3s, transform 0.3s; /* Added transform transition */
+}
+
+nav a:hover {
+    color: #ffcc00; /* Change color on hover for better interactivity */
+    transform: scale(1.1); /* Slightly enlarges on hover */
+}
+
+section {
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px; /* Rounded corners for sections */
+    margin: 20px; /* Add margin for better spacing */
+    flex: 1; /* Allow sections to grow and take space */
+    text-align: center; /* Center-align text */
+}
+
+img.bulbasaur-image {
+    max-width: 150px; /* Make the image smaller */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 5px; /* Rounded corners for images */
+    display: block; /* Ensure the image behaves like a block element */
+    margin: 0 auto; /* Center the image horizontally */
+}
+
+footer {
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: rgba(0, 128, 0, 0.7);
+}
+
+/* Game area styling */
+#gameArea {
+    border: 3px solid #ccc; /* Thicker border for the emulator screen */
+    background-color: #000; /* Black background for emulator area */
+    padding: 10px; /* Added padding for better aesthetics */
+    border-radius: 5px; /* Rounded corners */
+}
