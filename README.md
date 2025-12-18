@@ -9,9 +9,12 @@ Bulbasaur is my favorite Pokemon.
 3. Make a single page user interface with React
 4. Improve Web Application Security dealing with misconfigurations and hardening
 
+_The items above are the next learning goals and are not fully implemented yet._
+
 ### Finished
-1. Integrated a simple UX-design with only the necessary components to play a ROM with the JS emulator (20-11-2025)
-2. Added a basic EmulatorJS-powered GBA player so you can upload a `.gba` ROM and play it in the browser.
+1. Integrated a simple UX-design with only the necessary components to play a ROM with the JS emulator. (20-11-2025)
+2. Added a basic EmulatorJS-powered GBA player so you can upload a `.gba` ROM and play it in the browser. (18-12-2025)
+3. Updated the main page to a modern single-page, React-inspired layout with an EmulatorJS play area and improved UX styling. (18-12-2025)
 
 ### How to Run
 1. From the project root, run `node server.js`.

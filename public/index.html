@@ -3,45 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokémon Bulbasaur Fan Site</title>
+    <title>Bulbasaur's World · GBA Playground</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon"> <!-- Favicon -->
     <!-- Main site logic (will dynamically load EmulatorJS when needed) -->
     <script src="script.js" defer></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>
-                <a href="#games" class="header-link">Welcome to Bulbasaur's World</a>
-            </h1>
-            <nav>
+    <div class="app-root">
+        <header class="app-header">
+            <div class="logo-title">
+                <img src="bulbasaur_image.png" alt="Bulbasaur" class="logo-icon" />
+                <div>
+                    <h1 class="app-title">Bulbasaur's World</h1>
+                    <p class="app-subtitle">Play classic GBA games in a cozy Pok&eacute;mon-inspired hub.</p>
+                </div>
+            </div>
+            <nav class="main-nav">
                 <ul class="nav-links">
-                    <li><a href="#about">About Bulbasaur</a></li>
-                    <li><a href="rom_database.html">ROM Database</a></li>
+                    <li><a href="#about" class="nav-link">About</a></li>
+                    <li><a href="#games" class="nav-link">Play GBA</a></li>
+                    <li><a href="#rom-info" class="nav-link">ROM Info</a></li>
                 </ul>
             </nav>
         </header>
 
-        <section id="about">
-            <h2>About Bulbasaur</h2>
-            <img src="bulbasaur_image.png" alt="Bulbasaur" class="bulbasaur-image">
-            <p>Bulbasaur is a dual-type Grass/Poison Pokémon known for its adorable appearance and unique features. Not only does he look cute, but he also has a tough little dinosaur vibe that sets him apart from other Pokémon.</p>
-            <p>He is my favorite Pokémon because of his charming looks and strength. Bulbasaur's design balances both adorable and fierce, making him a fantastic companion in the Pokémon world!</p>
+        <main class="main-layout">
+            <section id="about" class="card card-about">
+                <h2>About Bulbasaur</h2>
+                <p>Bulbasaur is a dual-type Grass/Poison Pok&eacute;mon known for its adorable appearance and unique features.</p>
+                <p>Behind the cute face is a tough little dinosaur vibe. That mix of charm and strength is exactly why Bulbasaur is my favorite starter.</p>
+                <p class="highlight-text">This app is a small playground to learn JavaScript, Node, and modern front-end techniques using Bulbasaur as the mascot.</p>
+            </section>
+
+            <section id="games" class="card card-emulator">
+                <h2>Play Game Boy Advance Games</h2>
+                <p class="section-description">
+                    Select a local <strong>.gba</strong> ROM file and click <strong>Play ROM</strong>. The game runs completely in your browser using EmulatorJS.
+                </p>
+                <div class="emulator-controls">
+                    <label for="romInput" class="file-label">
+                        <span>Choose a GBA ROM</span>
+                        <input type="file" id="romInput" accept=".gba" />
+                    </label>
+                    <button id="playButton" type="button" class="primary-button">
+                        ▶ Play ROM
+                    </button>
+                </div>
+                <div id="gameArea" class="emulator-frame">
+                    <p class="emulator-placeholder">Your game screen will appear here after you load a ROM.</p>
+                </div>
+            </section>
+        </main>
+
+        <section id="rom-info" class="card card-rom-info">
+            <h2>ROM Usage & Tips</h2>
+            <ul class="info-list">
+                <li>Use your own legally obtained backups of games you own.</li>
+                <li>ROMs never leave your device; they are loaded directly from your browser.</li>
+                <li>For now, ROMs are not stored server-side – each refresh means you reselect the file.</li>
+            </ul>
         </section>
 
-        <section id="games">
-            <h2>Play Game Boy Advance Games</h2>
-            <p>Select a local <strong>.gba</strong> ROM file and click <strong>Play</strong>. The game runs entirely in your browser.</p>
-            <input type="file" id="romInput" accept=".gba">
-            <button id="playButton" type="button">Play ROM</button>
-            <div id="gameArea">
-                <!-- EmulatorJS will render here -->
-            </div>
-        </section>
-
-        <footer>
-            <p>© 2025 Bulbasaur Fan Site</p>
+        <footer class="app-footer">
+            <p>© 2025 Bulbasaur Fan Site · Built with Node.js, vanilla JS, and EmulatorJS</p>
         </footer>
     </div>
 </body>

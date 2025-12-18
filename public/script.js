@@ -55,4 +55,23 @@ function setupRomPlayer() {
     });
 }
 
-window.addEventListener('DOMContentLoaded', setupRomPlayer);
+function setupSmoothScroll() {
+    const links = document.querySelectorAll('.nav-link[href^="#"]');
+    links.forEach((link) => {
+        link.addEventListener('click', (event) => {
+            const targetId = link.getAttribute('href');
+            if (!targetId || !targetId.startsWith('#')) return;
+
+            const target = document.querySelector(targetId);
+            if (!target) return;
+
+            event.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    setupRomPlayer();
+    setupSmoothScroll();
+});
