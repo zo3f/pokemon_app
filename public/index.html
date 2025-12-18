@@ -10,7 +10,7 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Emulator + behavior -->
+    <!-- Helper functions (smooth scroll, logging) -->
     <script src="script.js" defer></script>
 </head>
 <body>
@@ -18,17 +18,27 @@
 
     <!-- Simple React SPA using JSX compiled by Babel in the browser -->
     <script type="text/babel">
-        const { useEffect } = React;
+        const { useEffect, useState } = React;
 
         function App() {
+            const [roms, setRoms] = useState([]);
+            const [selectedRomUrl, setSelectedRomUrl] = useState('');
+
             useEffect(() => {
-                // After React renders, wire up EmulatorJS behavior (in script.js)
-                if (window.setupRomPlayer) {
-                    window.setupRomPlayer();
-                }
+                // Smooth scrolling for nav links
                 if (window.setupSmoothScroll) {
                     window.setupSmoothScroll();
                 }
+
+                // Load available ROMs from the server
+                fetch('/api/roms')
+                    .then((res) => res.json())
+                    .then((data) => {
+                        setRoms(Array.isArray(data.roms) ? data.roms : []);
+                    })
+                    .catch(() => {
+                        // Ignore errors; UI will show an empty message.
+                    });
             }, []);
 
             return (
@@ -65,19 +75,51 @@
                         <section id="games" className="card card-emulator">
                             <h2>Play Game Boy Advance Games</h2>
                             <p className="section-description">
-                                Select a local <strong>.gba</strong> ROM file and click <strong>Play ROM</strong>. The game runs completely in your browser using EmulatorJS.
+                                Drop your <strong>.gba</strong> files into the server&apos;s <code>roms/</code> folder and click a game below to start playing in the browser.
                             </p>
-                            <div className="emulator-controls">
-                                <label htmlFor="romInput" className="file-label">
-                                    <span>Choose a GBA ROM</span>
-                                    <input type="file" id="romInput" accept=".gba" />
-                                </label>
-                                <button id="playButton" type="button" className="primary-button">
-                                    ▶ Play ROM
-                                </button>
+
+                            <div className="rom-list">
+                                {roms.length === 0 ? (
+                                    <p className="rom-empty">
+                                        No ROMs found. Add <code>.gba</code> files to the <code>roms/</code> folder on the server to see them here.
+                                    </p>
+                                ) : (
+                                    roms.map((name) => (
+                                        <button
+                                            key={name}
+                                            type="button"
+                                            className={
+                                                'rom-chip' +
+                                                (selectedRomUrl === `/roms/${encodeURIComponent(name)}` ? ' rom-chip--active' : '')
+                                            }
+                                            onClick={() => {
+                                                const url = `/roms/${encodeURIComponent(name)}`;
+                                                setSelectedRomUrl(url);
+                                                if (window.logRomPlay) {
+                                                    window.logRomPlay(name);
+                                                }
+                                            }}
+                                        >
+                                            {name}
+                                        </button>
+                                    ))
+                                )}
                             </div>
-                            <div id="gameArea" className="emulator-frame">
-                                <p className="emulator-placeholder">Your game screen will appear here after you load a ROM.</p>
+
+                            <div className="emulator-frame">
+                                {selectedRomUrl ? (
+                                    <iframe
+                                        title="GBA Emulator"
+                                        className="emulator-iframe"
+                                        src={`/emulator.html?rom=${encodeURIComponent(selectedRomUrl)}`}
+                                        frameBorder="0"
+                                        allowFullScreen
+                                    ></iframe>
+                                ) : (
+                                    <p className="emulator-placeholder">
+                                        Choose a ROM from the list above to start playing.
+                                    </p>
+                                )}
                             </div>
                         </section>
                     </main>

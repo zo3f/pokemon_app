@@ -1,71 +1,6 @@
-// Simple integration with EmulatorJS using the official embed globals.
-// This expects the public EmulatorJS CDN at https://cdn.emulatorjs.org.
+// Small helper functions used by the React app.
 
-window.setupRomPlayer = function setupRomPlayer() {
-    const playButton = document.getElementById('playButton');
-    const romInput = document.getElementById('romInput');
-    const gameArea = document.getElementById('gameArea');
-
-    if (!playButton || !romInput || !gameArea) {
-        return;
-    }
-
-    playButton.addEventListener('click', () => {
-        const romFile = romInput.files && romInput.files[0];
-
-        if (!romFile) {
-            alert('Please select a .gba ROM file first.');
-            return;
-        }
-
-        if (!romFile.name.toLowerCase().endsWith('.gba')) {
-            alert('Please select a valid Game Boy Advance (.gba) ROM file.');
-            return;
-        }
-
-        // Create an object URL for the selected ROM so EmulatorJS can load it.
-        const romUrl = URL.createObjectURL(romFile);
-
-        // Log the play event to the Node.js + SQLite backend (for learning/demo purposes).
-        fetch('/api/rom-play', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ romName: romFile.name }),
-        }).catch(() => {
-            // Fail silently; the game can still load even if logging fails.
-        });
-
-        // Clear any previous emulator instance from the container.
-        gameArea.innerHTML = '';
-
-        // These globals are how EmulatorJS is configured.
-        // See https://emulatorjs.org/docs/getting-started/ for details.
-        window.EJS_player = '#gameArea';
-        window.EJS_core = 'gba';
-        window.EJS_gameUrl = romUrl;
-        window.EJS_fullscreenOnLoaded = false;
-        // Path to EmulatorJS assets on the public CDN
-        window.EJS_pathtodata = 'https://cdn.emulatorjs.org/latest/';
-
-        // Remove any previously injected EmulatorJS script so we can reload cleanly.
-        const existingScript = document.getElementById('emulatorjs-loader');
-        if (existingScript) {
-            existingScript.remove();
-        }
-
-        const script = document.createElement('script');
-        script.id = 'emulatorjs-loader';
-        script.src = 'https://cdn.emulatorjs.org/latest/emulator.js';
-        script.onerror = () => {
-            alert('Failed to load EmulatorJS. Please check your internet connection.');
-        };
-
-        document.body.appendChild(script);
-    });
-}
-
+// Smooth scrolling between sections for a SPA-like feel.
 window.setupSmoothScroll = function setupSmoothScroll() {
     const links = document.querySelectorAll('.nav-link[href^="#"]');
     links.forEach((link) => {
@@ -79,5 +14,20 @@ window.setupSmoothScroll = function setupSmoothScroll() {
             event.preventDefault();
             target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
+    });
+}
+
+// Log ROM plays to the backend (Node + SQLite). Fails silently on error.
+window.logRomPlay = function logRomPlay(romName) {
+    if (!romName) return;
+
+    fetch('/api/rom-play', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ romName }),
+    }).catch(() => {
+        // Ignore logging failures so the game can still be played.
     });
 }

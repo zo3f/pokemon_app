@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
@@ -7,6 +8,7 @@ const { logRomPlay, logSecurityEvent, getRomStats } = require('./db');
 
 const app = express();
 const port = process.env.PORT || 3000;
+const romsDir = path.join(__dirname, 'roms');
 
 // Basic security hardening
 app.disable('x-powered-by');
@@ -47,6 +49,16 @@ app.use(
   })
 );
 
+// Serve static ROM files from the local "roms" folder (click-and-play)
+app.use(
+  '/roms',
+  express.static(romsDir, {
+    immutable: true,
+    maxAge: '1y',
+    index: false,
+  })
+);
+
 // Simple healthcheck
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -73,6 +85,23 @@ app.get('/api/rom-stats', (req, res) => {
       return res.status(500).json({ error: 'Failed to get stats.' });
     }
     res.json({ data: rows });
+  });
+});
+
+// List available ROMs in the "roms" directory
+app.get('/api/roms', (req, res) => {
+  fs.readdir(romsDir, (err, files) => {
+    if (err) {
+      console.error('Failed to read roms directory:', err.message);
+      logSecurityEvent('roms_dir_error', err.message);
+      return res.status(500).json({ error: 'Failed to list ROMs.' });
+    }
+
+    const roms = (files || []).filter((name) =>
+      name.toLowerCase().endsWith('.gba')
+    );
+
+    res.json({ roms });
   });
 });
 
