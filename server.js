@@ -8,7 +8,8 @@ const { logRomPlay, logSecurityEvent, getRomStats } = require('./db');
 
 const app = express();
 const port = process.env.PORT || 3000;
-const romsDir = path.join(__dirname, 'roms');
+// Use a "data" folder (as you created) to store ROMs on the server.
+const romsDir = path.join(__dirname, 'data');
 
 // Ensure the ROM directory exists so the API and static hosting work as expected.
 if (!fs.existsSync(romsDir)) {

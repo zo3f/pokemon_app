@@ -1,0 +1,23 @@
+[
+    {
+        "id": 1,
+        "name": "Pokemon - Fire Red Version",
+        "filename": "Pokemon - Fire Red Version.gba",
+        "description": "A remake of the original Pokemon Red and Blue games.",
+        "releaseYear": 2004
+    },
+    {
+        "id": 2,
+        "name": "Pokemon - Leaf Green Version",
+        "filename": "Pokemon - Leaf Green Version.gba",
+        "description": "A remake of the original Pokemon Green.",
+        "releaseYear": 2004
+    },
+    {
+        "id": 3,
+        "name": "Pokemon - Ruby Version",
+        "filename": "Pokemon - Ruby Version.gba",
+        "description": "One of the third-generation Pokemon games.",
+        "releaseYear": 2002
+    }
+]
