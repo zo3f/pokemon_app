@@ -1,0 +1,28 @@
+{
+  "name": "pokemon_app",
+  "version": "1.0.0",
+  "description": "Bulbasaur fan site with GBA emulator, Node.js backend, and basic security/database integration.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "pokemon",
+    "bulbasaur",
+    "emulatorjs",
+    "node",
+    "express",
+    "react"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "helmet": "^7.0.0",
+    "express-rate-limit": "^7.4.0",
+    "sqlite3": "^5.1.7",
+    "cors": "^2.8.5"
+  }
+}
+
+

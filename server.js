@@ -1,24 +1,97 @@
 const express = require('express');
 const path = require('path');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const cors = require('cors');
+const { logRomPlay, logSecurityEvent, getRomStats } = require('./db');
+
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
+
+// Basic security hardening
+app.disable('x-powered-by');
+app.use(helmet());
+
+// CORS: only allow same-origin and localhost frontends
+app.use(
+  cors({
+    origin: [/^http:\/\/localhost(:\d+)?$/, /^http:\/\/127\.0\.0\.1(:\d+)?$/],
+    methods: ['GET', 'POST'],
+  })
+);
+
+// Rate limiting for API routes
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(express.json());
+
+// Apply limiter to all /api routes
+app.use('/api', apiLimiter);
 
 // Middleware to serve static files
-app.use(express.static('public')); // Serve static files from the "public" folder
+app.use(
+  express.static('public', {
+    maxAge: '1h',
+    setHeaders: (res, filePath) => {
+      // Simple hardening: no sniffing, and basic cache control is already set above.
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      if (filePath.endsWith('index.html')) {
+        res.setHeader('Cache-Control', 'no-cache');
+      }
+    },
+  })
+);
 
-// Serve GBA ROMs
-app.get('/roms/:name', (req, res) => {
-    const romName = req.params.name;
-    const romPath = path.join(__dirname, 'roms', romName);
+// Simple healthcheck
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
-    res.sendFile(romPath, (err) => {
-        if (err) {
-            res.status(err.status).end();
-        }
-    });
+// Log a ROM play event into the SQLite database
+app.post('/api/rom-play', (req, res) => {
+  const { romName } = req.body || {};
+
+  if (!romName || typeof romName !== 'string' || romName.length > 255) {
+    logSecurityEvent('invalid_rom_name', JSON.stringify(req.body || {}));
+    return res.status(400).json({ error: 'Invalid ROM name.' });
+  }
+
+  logRomPlay(romName);
+  return res.status(201).json({ ok: true });
+});
+
+// Get ROM play statistics
+app.get('/api/rom-stats', (req, res) => {
+  getRomStats((err, rows) => {
+    if (err) {
+      console.error('Failed to get rom stats:', err);
+      return res.status(500).json({ error: 'Failed to get stats.' });
+    }
+    res.json({ data: rows });
+  });
+});
+
+// Fallback: serve SPA index.html for any unknown route that isn't API
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  logSecurityEvent('server_error', err.message || String(err));
+  res.status(500).json({ error: 'Internal server error.' });
 });
 
 // Start the server
 app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Server is running securely at http://localhost:${port}`);
 });

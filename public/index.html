@@ -6,68 +6,100 @@
     <title>Bulbasaur's World · GBA Playground</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon"> <!-- Favicon -->
-    <!-- Main site logic (will dynamically load EmulatorJS when needed) -->
+    <!-- React + ReactDOM via CDN for a simple SPA-style UI -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Emulator + behavior -->
     <script src="script.js" defer></script>
 </head>
 <body>
-    <div class="app-root">
-        <header class="app-header">
-            <div class="logo-title">
-                <img src="bulbasaur_image.png" alt="Bulbasaur" class="logo-icon" />
-                <div>
-                    <h1 class="app-title">Bulbasaur's World</h1>
-                    <p class="app-subtitle">Play classic GBA games in a cozy Pok&eacute;mon-inspired hub.</p>
+    <div id="root"></div>
+
+    <!-- Simple React SPA using JSX compiled by Babel in the browser -->
+    <script type="text/babel">
+        const { useEffect } = React;
+
+        function App() {
+            useEffect(() => {
+                // After React renders, wire up EmulatorJS behavior (in script.js)
+                if (window.setupRomPlayer) {
+                    window.setupRomPlayer();
+                }
+                if (window.setupSmoothScroll) {
+                    window.setupSmoothScroll();
+                }
+            }, []);
+
+            return (
+                <div className="app-root">
+                    <header className="app-header">
+                        <div className="logo-title">
+                            <img src="bulbasaur_image.png" alt="Bulbasaur" className="logo-icon" />
+                            <div>
+                                <h1 className="app-title">Bulbasaur&apos;s World</h1>
+                                <p className="app-subtitle">
+                                    Play classic GBA games in a cozy Pokémon-inspired hub.
+                                </p>
+                            </div>
+                        </div>
+                        <nav className="main-nav">
+                            <ul className="nav-links">
+                                <li><a href="#about" className="nav-link">About</a></li>
+                                <li><a href="#games" className="nav-link">Play GBA</a></li>
+                                <li><a href="#rom-info" className="nav-link">ROM Info</a></li>
+                            </ul>
+                        </nav>
+                    </header>
+
+                    <main className="main-layout">
+                        <section id="about" className="card card-about">
+                            <h2>About Bulbasaur</h2>
+                            <p>Bulbasaur is a dual-type Grass/Poison Pokémon known for its adorable appearance and unique features.</p>
+                            <p>Behind the cute face is a tough little dinosaur vibe. That mix of charm and strength is exactly why Bulbasaur is my favorite starter.</p>
+                            <p className="highlight-text">
+                                This app is a small playground to learn JavaScript, Node, React, and modern front-end techniques using Bulbasaur as the mascot.
+                            </p>
+                        </section>
+
+                        <section id="games" className="card card-emulator">
+                            <h2>Play Game Boy Advance Games</h2>
+                            <p className="section-description">
+                                Select a local <strong>.gba</strong> ROM file and click <strong>Play ROM</strong>. The game runs completely in your browser using EmulatorJS.
+                            </p>
+                            <div className="emulator-controls">
+                                <label htmlFor="romInput" className="file-label">
+                                    <span>Choose a GBA ROM</span>
+                                    <input type="file" id="romInput" accept=".gba" />
+                                </label>
+                                <button id="playButton" type="button" className="primary-button">
+                                    ▶ Play ROM
+                                </button>
+                            </div>
+                            <div id="gameArea" className="emulator-frame">
+                                <p className="emulator-placeholder">Your game screen will appear here after you load a ROM.</p>
+                            </div>
+                        </section>
+                    </main>
+
+                    <section id="rom-info" className="card card-rom-info">
+                        <h2>ROM Usage & Tips</h2>
+                        <ul className="info-list">
+                            <li>Use your own legally obtained backups of games you own.</li>
+                            <li>ROMs never leave your device; they are loaded directly from your browser.</li>
+                            <li>ROM play events are logged in a small SQLite database on the server for learning/demo purposes.</li>
+                        </ul>
+                    </section>
+
+                    <footer className="app-footer">
+                        <p>© 2025 Bulbasaur Fan Site · Built with Node.js, React, SQLite, and EmulatorJS</p>
+                    </footer>
                 </div>
-            </div>
-            <nav class="main-nav">
-                <ul class="nav-links">
-                    <li><a href="#about" class="nav-link">About</a></li>
-                    <li><a href="#games" class="nav-link">Play GBA</a></li>
-                    <li><a href="#rom-info" class="nav-link">ROM Info</a></li>
-                </ul>
-            </nav>
-        </header>
+            );
+        }
 
-        <main class="main-layout">
-            <section id="about" class="card card-about">
-                <h2>About Bulbasaur</h2>
-                <p>Bulbasaur is a dual-type Grass/Poison Pok&eacute;mon known for its adorable appearance and unique features.</p>
-                <p>Behind the cute face is a tough little dinosaur vibe. That mix of charm and strength is exactly why Bulbasaur is my favorite starter.</p>
-                <p class="highlight-text">This app is a small playground to learn JavaScript, Node, and modern front-end techniques using Bulbasaur as the mascot.</p>
-            </section>
-
-            <section id="games" class="card card-emulator">
-                <h2>Play Game Boy Advance Games</h2>
-                <p class="section-description">
-                    Select a local <strong>.gba</strong> ROM file and click <strong>Play ROM</strong>. The game runs completely in your browser using EmulatorJS.
-                </p>
-                <div class="emulator-controls">
-                    <label for="romInput" class="file-label">
-                        <span>Choose a GBA ROM</span>
-                        <input type="file" id="romInput" accept=".gba" />
-                    </label>
-                    <button id="playButton" type="button" class="primary-button">
-                        ▶ Play ROM
-                    </button>
-                </div>
-                <div id="gameArea" class="emulator-frame">
-                    <p class="emulator-placeholder">Your game screen will appear here after you load a ROM.</p>
-                </div>
-            </section>
-        </main>
-
-        <section id="rom-info" class="card card-rom-info">
-            <h2>ROM Usage & Tips</h2>
-            <ul class="info-list">
-                <li>Use your own legally obtained backups of games you own.</li>
-                <li>ROMs never leave your device; they are loaded directly from your browser.</li>
-                <li>For now, ROMs are not stored server-side – each refresh means you reselect the file.</li>
-            </ul>
-        </section>
-
-        <footer class="app-footer">
-            <p>© 2025 Bulbasaur Fan Site · Built with Node.js, vanilla JS, and EmulatorJS</p>
-        </footer>
-    </div>
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>

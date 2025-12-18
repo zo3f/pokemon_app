@@ -1,7 +1,7 @@
 // Simple integration with EmulatorJS using the official embed globals.
 // This expects the public EmulatorJS CDN at https://cdn.emulatorjs.org.
 
-function setupRomPlayer() {
+window.setupRomPlayer = function setupRomPlayer() {
     const playButton = document.getElementById('playButton');
     const romInput = document.getElementById('romInput');
     const gameArea = document.getElementById('gameArea');
@@ -25,6 +25,17 @@ function setupRomPlayer() {
 
         // Create an object URL for the selected ROM so EmulatorJS can load it.
         const romUrl = URL.createObjectURL(romFile);
+
+        // Log the play event to the Node.js + SQLite backend (for learning/demo purposes).
+        fetch('/api/rom-play', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ romName: romFile.name }),
+        }).catch(() => {
+            // Fail silently; the game can still load even if logging fails.
+        });
 
         // Clear any previous emulator instance from the container.
         gameArea.innerHTML = '';
@@ -55,7 +66,7 @@ function setupRomPlayer() {
     });
 }
 
-function setupSmoothScroll() {
+window.setupSmoothScroll = function setupSmoothScroll() {
     const links = document.querySelectorAll('.nav-link[href^="#"]');
     links.forEach((link) => {
         link.addEventListener('click', (event) => {
@@ -70,8 +81,3 @@ function setupSmoothScroll() {
         });
     });
 }
-
-window.addEventListener('DOMContentLoaded', () => {
-    setupRomPlayer();
-    setupSmoothScroll();
-});
