@@ -23,6 +23,7 @@
         function App() {
             const [roms, setRoms] = useState([]);
             const [selectedRomUrl, setSelectedRomUrl] = useState('');
+            const [selectedRomName, setSelectedRomName] = useState('');
 
             useEffect(() => {
                 // Smooth scrolling for nav links
@@ -95,6 +96,7 @@
                                             onClick={() => {
                                                 const url = `/roms/${encodeURIComponent(name)}`;
                                                 setSelectedRomUrl(url);
+                                                setSelectedRomName(name);
                                                 if (window.logRomPlay) {
                                                     window.logRomPlay(name);
                                                 }
@@ -108,13 +110,18 @@
 
                             <div className="emulator-frame">
                                 {selectedRomUrl ? (
-                                    <iframe
-                                        title="GBA Emulator"
-                                        className="emulator-iframe"
-                                        src={`/emulator.html?rom=${encodeURIComponent(selectedRomUrl)}`}
-                                        frameBorder="0"
-                                        allowFullScreen
-                                    ></iframe>
+                                    <>
+                                        <div className="now-playing">
+                                            Now playing: <span>{selectedRomName}</span>
+                                        </div>
+                                        <iframe
+                                            title="GBA Emulator"
+                                            className="emulator-iframe"
+                                            src={`/emulator.html?rom=${encodeURIComponent(selectedRomUrl)}`}
+                                            frameBorder="0"
+                                            allowFullScreen
+                                        ></iframe>
+                                    </>
                                 ) : (
                                     <p className="emulator-placeholder">
                                         Choose a ROM from the list above to start playing.

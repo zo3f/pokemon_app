@@ -10,6 +10,11 @@ const app = express();
 const port = process.env.PORT || 3000;
 const romsDir = path.join(__dirname, 'roms');
 
+// Ensure the ROM directory exists so the API and static hosting work as expected.
+if (!fs.existsSync(romsDir)) {
+  fs.mkdirSync(romsDir, { recursive: true });
+}
+
 // Basic security hardening
 app.disable('x-powered-by');
 app.use(helmet());
@@ -92,6 +97,11 @@ app.get('/api/rom-stats', (req, res) => {
 app.get('/api/roms', (req, res) => {
   fs.readdir(romsDir, (err, files) => {
     if (err) {
+      // If the folder somehow doesn't exist, just return an empty list instead of erroring.
+      if (err.code === 'ENOENT') {
+        return res.json({ roms: [] });
+      }
+
       console.error('Failed to read roms directory:', err.message);
       logSecurityEvent('roms_dir_error', err.message);
       return res.status(500).json({ error: 'Failed to list ROMs.' });
