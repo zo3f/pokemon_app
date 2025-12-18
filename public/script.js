@@ -1,113 +1,58 @@
-const romList = [];
-let activeRom = null; // To store the selected ROM
-let emulator = null; // To hold the emulator instance
+// Simple integration with EmulatorJS using the official embed globals.
+// This expects the public EmulatorJS CDN at https://cdn.emulatorjs.org.
 
-// Load the EmulatorJS library
-const loadEmulator = () => {
-    return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/emulatorjs/4.2.1/emulator.min.js';
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error('Failed to load EmulatorJS'));
-        document.body.appendChild(script);
-    });s
-};
-
-// Handle ROM file upload
-function uploadRom() {
+function setupRomPlayer() {
+    const playButton = document.getElementById('playButton');
     const romInput = document.getElementById('romInput');
-    const romFile = romInput.files[0];
+    const gameArea = document.getElementById('gameArea');
 
-    if (!romFile) {
-        alert("Please select a ROM file to upload.");
+    if (!playButton || !romInput || !gameArea) {
         return;
     }
 
-    if (!romFile.name.endsWith('.gba')) {
-        alert("Please upload a valid Game Boy Advance (.gba) ROM file.");
-        return;
-    }
+    playButton.addEventListener('click', () => {
+        const romFile = romInput.files && romInput.files[0];
 
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        const romData = new Uint8Array(event.target.result); // Convert ArrayBuffer to Uint8Array
-        localStorage.setItem(romFile.name, romData); // Store in local storage
-        romList.push(romFile.name);
-        displayRoms();
-        activeRom = romFile.name; // Set it as the active ROM
-    };
-    reader.readAsArrayBuffer(romFile); // Use readAsArrayBuffer for ROM data
-}
+        if (!romFile) {
+            alert('Please select a .gba ROM file first.');
+            return;
+        }
 
-// Display the list of uploaded ROMs
-function displayRoms() {
-    const romListDiv = document.getElementById('romList');
-    romListDiv.innerHTML = '<h3>Available ROMs:</h3>';
+        if (!romFile.name.toLowerCase().endsWith('.gba')) {
+            alert('Please select a valid Game Boy Advance (.gba) ROM file.');
+            return;
+        }
 
-    romList.forEach((romName) => {
-        romListDiv.innerHTML += `
-            <p>
-                ${romName} 
-                <button onclick="deleteRom('${romName}')">Delete</button>
-                <button onclick="setActiveRom('${romName}')">Select</button>
-            </p>`;
+        // Create an object URL for the selected ROM so EmulatorJS can load it.
+        const romUrl = URL.createObjectURL(romFile);
+
+        // Clear any previous emulator instance from the container.
+        gameArea.innerHTML = '';
+
+        // These globals are how EmulatorJS is configured.
+        // See https://emulatorjs.org/docs/getting-started/ for details.
+        window.EJS_player = '#gameArea';
+        window.EJS_core = 'gba';
+        window.EJS_gameUrl = romUrl;
+        window.EJS_fullscreenOnLoaded = false;
+        // Path to EmulatorJS assets on the public CDN
+        window.EJS_pathtodata = 'https://cdn.emulatorjs.org/latest/';
+
+        // Remove any previously injected EmulatorJS script so we can reload cleanly.
+        const existingScript = document.getElementById('emulatorjs-loader');
+        if (existingScript) {
+            existingScript.remove();
+        }
+
+        const script = document.createElement('script');
+        script.id = 'emulatorjs-loader';
+        script.src = 'https://cdn.emulatorjs.org/latest/emulator.js';
+        script.onerror = () => {
+            alert('Failed to load EmulatorJS. Please check your internet connection.');
+        };
+
+        document.body.appendChild(script);
     });
 }
 
-// Set the selected ROM
-function setActiveRom(romName) {
-    activeRom = romName;
-    alert(`Selected ROM: ${romName}`);
-}
-
-// Delete a ROM
-function deleteRom(romName) {
-    localStorage.removeItem(romName);
-    const index = romList.indexOf(romName);
-    if (index > -1) {
-        romList.splice(index, 1);
-    }
-    displayRoms();
-    alert(`${romName} has been deleted.`);
-}
-
-// Load and run the selected game
-function loadGame() {
-    if (!activeRom) {
-        alert("Please select a ROM to play.");
-        return;
-    }
-
-    const romData = localStorage.getItem(activeRom);
-    const gameArea = document.getElementById('gameArea');
-    gameArea.innerHTML = ''; // Clear previous game
-
-    if (romData) {
-        if (!emulator) {
-            // Initialize the emulator
-            emulator = new EmulatorJS.GameBoyAdvance(gameArea, {
-                // EmulatorJS configuration options
-                onLoad: () => console.log("Game loaded!"),
-                onError: (error) => console.error("Error: ", error),
-            });
-        }
-        emulator.loadROM(new Uint8Array(romData)); // Load the ROM as Uint8Array
-        emulator.start(); // Start the emulator
-    } else {
-        alert("ROM data not found.");
-    }
-}
-
-// Call to load existing ROMs on page load
-window.onload = () => {
-    loadEmulator().then(() => {
-        // Load saved ROMs from local storage
-        for (let i = 0; i < localStorage.length; i++) {
-            const romName = localStorage.key(i);
-            if (romName.endsWith('.gba')) {
-                romList.push(romName);
-            }
-        }
-        displayRoms(); // Display the loaded ROMs
-    }).catch(error => console.error(error));
-};
+window.addEventListener('DOMContentLoaded', setupRomPlayer);

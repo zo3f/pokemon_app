@@ -6,7 +6,7 @@
     <title>Pokémon Bulbasaur Fan Site</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon"> <!-- Favicon -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/emulatorjs/4.2.1/emulator.min.js"></script>
+    <!-- Main site logic (will dynamically load EmulatorJS when needed) -->
     <script src="script.js" defer></script>
 </head>
 <body>
@@ -32,12 +32,11 @@
 
         <section id="games">
             <h2>Play Game Boy Advance Games</h2>
+            <p>Select a local <strong>.gba</strong> ROM file and click <strong>Play</strong>. The game runs entirely in your browser.</p>
             <input type="file" id="romInput" accept=".gba">
-            <button onclick="uploadRom()">Upload ROM</button>
-            <div id="romList"></div>
-            <button onclick="loadGame()">Load Game & Play</button>
+            <button id="playButton" type="button">Play ROM</button>
             <div id="gameArea">
-                <!-- Emulator will render here -->
+                <!-- EmulatorJS will render here -->
             </div>
         </section>
 
