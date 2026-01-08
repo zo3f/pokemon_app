@@ -18,15 +18,34 @@ window.setupSmoothScroll = function setupSmoothScroll() {
 }
 
 // Log ROM plays to the backend (Node + SQLite). Fails silently on error.
+// Security: Input validation and sanitization
 window.logRomPlay = function logRomPlay(romName) {
-    if (!romName) return;
+    if (!romName || typeof romName !== 'string') return;
+
+    // Sanitize input before sending
+    const sanitizedName = String(romName)
+        .replace(/[<>\"']/g, '')
+        .replace(/javascript:/gi, '')
+        .replace(/on\w+\s*=/gi, '')
+        .trim();
+
+    if (!sanitizedName || sanitizedName.length === 0 || sanitizedName.length > 255) {
+        console.error('Invalid ROM name for logging');
+        return;
+    }
+
+    // Validate it's a .gba file
+    if (!sanitizedName.toLowerCase().endsWith('.gba')) {
+        console.error('Invalid file type');
+        return;
+    }
 
     fetch('/api/rom-play', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ romName }),
+        body: JSON.stringify({ romName: sanitizedName }),
     }).catch(() => {
         // Ignore logging failures so the game can still be played.
     });

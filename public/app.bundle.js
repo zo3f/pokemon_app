@@ -116,11 +116,21 @@ function RomList({ onRomSelect, selectedRomUrl }) {
   }, []);
 
   const handleRomClick = (romName) => {
-    const url = `/roms/${encodeURIComponent(romName)}`;
-    onRomSelect(url, romName);
+    // Sanitize ROM name to prevent XSS
+    const sanitizedName = String(romName)
+      .replace(/[<>\"']/g, '') // Remove potentially dangerous characters
+      .trim();
+    
+    if (!sanitizedName || sanitizedName.length === 0) {
+      console.error('Invalid ROM name');
+      return;
+    }
+    
+    const url = `/roms/${encodeURIComponent(sanitizedName)}`;
+    onRomSelect(url, sanitizedName);
     
     if (window.logRomPlay) {
-      window.logRomPlay(romName);
+      window.logRomPlay(sanitizedName);
     }
   };
 
@@ -155,22 +165,28 @@ function RomList({ onRomSelect, selectedRomUrl }) {
 
   return (
     <div className="rom-list">
-      {roms.map((name) => (
-        <button
-          key={name}
-          type="button"
-          className={
-            'rom-chip' +
-            (selectedRomUrl === `/roms/${encodeURIComponent(name)}`
-              ? ' rom-chip--active'
-              : '')
-          }
-          onClick={() => handleRomClick(name)}
-          aria-label={`Play ${name}`}
-        >
-          {name}
-        </button>
-      ))}
+      {roms.map((name) => {
+        // React automatically escapes content, but ensure we're using text content
+        const displayName = String(name || '').trim();
+        if (!displayName) return null;
+        
+        return (
+          <button
+            key={displayName}
+            type="button"
+            className={
+              'rom-chip' +
+              (selectedRomUrl === `/roms/${encodeURIComponent(displayName)}`
+                ? ' rom-chip--active'
+                : '')
+            }
+            onClick={() => handleRomClick(displayName)}
+            aria-label={`Play ${displayName}`}
+          >
+            {displayName}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -181,7 +197,15 @@ function EmulatorFrame({ romUrl, romName }) {
 
   useEffect(() => {
     if (iframeRef.current && romUrl) {
-      iframeRef.current.src = `/emulator.html?rom=${encodeURIComponent(romUrl)}`;
+      // Sanitize URL to prevent XSS
+      const sanitizedUrl = String(romUrl)
+        .replace(/javascript:/gi, '')
+        .replace(/on\w+\s*=/gi, '')
+        .trim();
+      
+      if (sanitizedUrl && sanitizedUrl.startsWith('/roms/')) {
+        iframeRef.current.src = `/emulator.html?rom=${encodeURIComponent(sanitizedUrl)}`;
+      }
     }
   }, [romUrl]);
 
@@ -195,20 +219,32 @@ function EmulatorFrame({ romUrl, romName }) {
     );
   }
 
+  // Sanitize display name for XSS prevention (React escapes by default, but be explicit)
+  const displayName = String(romName || '').trim();
+  const sanitizedUrl = String(romUrl || '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
+    .trim();
+
   return (
     <div className="emulator-frame">
-      <div className="now-playing">
-        Now playing: <span>{romName}</span>
-      </div>
-      <iframe
-        ref={iframeRef}
-        title="GBA Emulator"
-        className="emulator-iframe"
-        src={`/emulator.html?rom=${encodeURIComponent(romUrl)}`}
-        frameBorder="0"
-        allowFullScreen
-        loading="lazy"
-      />
+      {displayName && (
+        <div className="now-playing">
+          Now playing: <span>{displayName}</span>
+        </div>
+      )}
+      {sanitizedUrl && sanitizedUrl.startsWith('/roms/') && (
+        <iframe
+          ref={iframeRef}
+          title="GBA Emulator"
+          className="emulator-iframe"
+          src={`/emulator.html?rom=${encodeURIComponent(sanitizedUrl)}`}
+          frameBorder="0"
+          allowFullScreen
+          loading="lazy"
+          sandbox="allow-scripts allow-same-origin allow-forms"
+        />
+      )}
     </div>
   );
 }

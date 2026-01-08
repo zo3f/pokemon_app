@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const config = require('./config');
 const { helmetConfig, corsConfig, apiLimiter } = require('./middleware/security');
+const { validateRequestBody } = require('./middleware/validation');
 const apiRoutes = require('./routes/api');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
@@ -24,9 +25,25 @@ app.disable('x-powered-by');
 app.use(helmetConfig);
 app.use(corsConfig);
 
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Body parsing middleware with size limits
+app.use(express.json({ 
+  limit: '10mb',
+  strict: true, // Only parse arrays and objects
+  type: 'application/json',
+}));
+app.use(express.urlencoded({ 
+  extended: false, // Use querystring library (more secure)
+  limit: '10mb',
+  parameterLimit: 100, // Limit number of parameters
+}));
+
+// Request size limiter (before routes)
+const { requestSizeLimiter, sanitizeInput, postLimiter } = require('./middleware/security');
+app.use(requestSizeLimiter);
+
+// Input sanitization and validation for all routes
+app.use(sanitizeInput);
+app.use(validateRequestBody);
 
 // Rate limiting for API routes
 app.use('/api', apiLimiter);
@@ -61,6 +78,10 @@ app.use(
 
 // API routes
 app.use('/api', apiRoutes);
+
+// Apply stricter rate limiting to POST endpoints
+const { postLimiter } = require('./middleware/security');
+app.use('/api/rom-play', postLimiter);
 
 // SPA fallback - serve index.html for non-API routes
 app.get('*', (req, res, next) => {

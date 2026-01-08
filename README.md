@@ -216,19 +216,29 @@ Returns play statistics for all ROMs.
 ✅ **Modular Architecture**: Separated concerns into config, middleware, routes, and database modules  
 ✅ **Error Handling**: Custom `AppError` class and global error handler middleware  
 ✅ **Environment Variables**: Centralized configuration using `dotenv`  
-✅ **Security**: Helmet, rate limiting, CORS, input validation, and sanitization  
+✅ **Security**: Comprehensive security measures (see [SECURITY.md](./SECURITY.md)):
+  - Helmet.js with comprehensive security headers
+  - Rate limiting (API and POST endpoints)
+  - CORS with restricted origins
+  - Input validation and sanitization
+  - Path traversal prevention
+  - XSS prevention (multiple layers)
+  - Request size limits
+  - SQL injection prevention (parameterized queries)
 ✅ **Async/Await**: Modern async patterns with proper error handling  
 ✅ **Database**: SQLite with WAL mode for better concurrency  
 ✅ **Graceful Shutdown**: Handles SIGTERM and SIGINT signals
 
 ### React Frontend
 
-✅ **Component Structure**: Separated into logical, reusable components  
+✅ **Component Structure**: Separated into logical, reusable components following React best practices  
 ✅ **Custom Hooks**: `useSmoothScroll` for navigation behavior  
 ✅ **Error Boundaries**: Catches React errors and displays fallback UI  
 ✅ **Loading States**: Proper loading and error states for async operations  
-✅ **Accessibility**: ARIA labels and semantic HTML  
-✅ **Performance**: Lazy loading for iframes, proper cleanup in useEffect
+✅ **Accessibility**: ARIA labels, semantic HTML, focus states, reduced motion support  
+✅ **Performance**: Lazy loading for iframes, proper cleanup in useEffect  
+✅ **Security**: XSS prevention through React auto-escaping and explicit sanitization  
+✅ **Modern Design**: Sleek, minimal UI with CSS custom properties and responsive design
 
 ### Code Quality
 
@@ -292,9 +302,24 @@ This project is licensed under the MIT License.
 - [Express.js](https://expressjs.com/) - Web framework
 - Pokémon and all related content © Nintendo/Creatures Inc./GAME FREAK inc.
 
+## 🔒 Security
+
+This application implements comprehensive security measures following OWASP best practices. See [SECURITY.md](./SECURITY.md) for detailed security documentation.
+
+**Key Security Features:**
+- HTTP security headers (Helmet.js)
+- Input validation and sanitization
+- Rate limiting
+- XSS and injection prevention
+- Path traversal protection
+- CORS configuration
+- Request size limits
+
 ## 📞 Support
 
 For issues, questions, or suggestions, please open an issue on GitHub.
+
+For security vulnerabilities, please report them responsibly (see [SECURITY.md](./SECURITY.md)).
 
 ---
 
