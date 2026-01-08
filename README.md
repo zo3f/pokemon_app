@@ -1,44 +1,301 @@
-## pokemon_app
-An experiment to further learn about JavaScript with one of the best animes ever, Pokemon!  
-Bulbasaur is my favorite Pokemon.
+# Pokémon Bulbasaur Fan Site · GBA Playground
 
-### Roadmap (completed)
+An experiment to further learn about JavaScript, Node.js, React, and modern web development practices using Pokémon as the theme. Bulbasaur is my favorite Pokémon!
 
-1. Integrate a database with NodeJS ✅
-2. Improve web security ✅
-3. Make a single page user interface with React ✅
-4. Improve Web Application Security dealing with misconfigurations and hardening ✅
+## 🎮 Features
 
-### Finished
-1. Integrated a simple UX-design with only the necessary components to play a ROM with the JS emulator. (20-11-2025)
-2. Added a basic EmulatorJS-powered GBA player so you can upload a `.gba` ROM and play it in the browser. (18-12-2025)
-3. Updated the main page to a modern single-page React-powered layout with an EmulatorJS play area and improved UX styling. (18-12-2025)
-4. Integrated a small SQLite database with NodeJS to log ROM play events and exposed simple stats APIs. (18-12-2025)
-5. Improved web security and hardening using Helmet, rate limiting, safer CORS, and an explicit error handler. (18-12-2025)
+- **GBA Emulator Integration**: Play Game Boy Advance games directly in your browser using EmulatorJS
+- **React-Powered SPA**: Modern single-page application with component-based architecture
+- **Node.js Backend**: RESTful API with Express.js following best practices
+- **SQLite Database**: Logs ROM play events and provides statistics
+- **Security Hardening**: Helmet, rate limiting, CORS, and input validation
+- **Responsive Design**: Beautiful, modern UI that works on desktop and mobile
 
-### How to Run
-1. Install dependencies (first time only): `npm install`.
-2. From the project root, run `npm start` (or `node server.js`).
-3. Open `http://localhost:3000` in your browser.
-4. Use the navigation at the top to move between sections and, in **Play GBA**, choose a `.gba` file and click **Play ROM**.
+## 📋 Table of Contents
 
-> Note: EmulatorJS assets are loaded from the public CDN, so you need an internet connection the first time it loads.
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Configuration](#configuration)
+- [API Documentation](#api-documentation)
+- [Development Best Practices](#development-best-practices)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
 
-### GitHub Push / Pull Helpers (Windows / PowerShell)
+## 🛠 Tech Stack
 
-Two helper scripts are included to speed up syncing with GitHub:
+### Frontend
+- **React 18** - Component-based UI library
+- **Babel Standalone** - JSX compilation in the browser
+- **EmulatorJS** - Browser-based GBA emulator
+- **Vanilla CSS** - Custom styling with modern CSS features
 
-- `git-push.ps1` – stages all changes, commits, and pushes to `origin main`.
-  - Usage: `.\git-push.ps1` or `.\git-push.ps1 -Message "your commit message"`
-- `git-pull.ps1` – pulls the latest changes from `origin main`.
-  - Usage: `.\git-pull.ps1`
+### Backend
+- **Node.js** - JavaScript runtime
+- **Express.js** - Web application framework
+- **SQLite3** - Lightweight database
+- **Helmet** - Security middleware
+- **express-rate-limit** - Rate limiting middleware
+- **CORS** - Cross-origin resource sharing
 
-Before using them the first time, set up Git and your remote in this folder:
+## 📁 Project Structure
 
-1. `git init`
-2. `git branch -M main`
-3. Create a new empty repo on GitHub and copy its HTTPS URL.
-4. `git remote add origin https://github.com/your-username/your-repo.git`
-5. `git add .`
-6. `git commit -m "Initial commit"`
-7. `git push -u origin main`
+```
+pokemon_app/
+├── config/                 # Configuration files
+│   └── index.js           # Centralized config with env vars
+├── middleware/            # Express middleware
+│   ├── errorHandler.js    # Global error handling
+│   └── security.js       # Security middleware (Helmet, CORS, rate limiting)
+├── routes/                # API routes
+│   └── api.js            # All /api/* endpoints
+├── db/                    # Database module
+│   └── index.js          # SQLite operations
+├── public/                # Static files served to client
+│   ├── components/       # React components
+│   │   ├── ErrorBoundary.js
+│   │   ├── RomList.js
+│   │   └── EmulatorFrame.js
+│   ├── hooks/            # Custom React hooks
+│   │   └── useSmoothScroll.js
+│   ├── App.js            # Main React app component
+│   ├── index.html        # Entry point HTML
+│   ├── styles.css        # Global styles
+│   ├── script.js         # Helper functions
+│   └── emulator.html     # EmulatorJS iframe page
+├── data/                  # Data directory
+│   └── roms/            # Place .gba ROM files here
+├── server.js             # Express server entry point
+├── package.json          # Dependencies and scripts
+├── .env.example         # Environment variables template
+└── README.md            # This file
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm (comes with Node.js)
+- Git (for version control)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/zo3f/pokemon_app.git
+   cd pokemon_app
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables** (optional)
+   ```bash
+   cp .env.example .env
+   # Edit .env with your preferred settings
+   ```
+
+4. **Add ROM files**
+   - Create `data/roms/` directory if it doesn't exist
+   - Place your `.gba` ROM files in `data/roms/`
+
+5. **Start the server**
+   ```bash
+   npm start
+   ```
+
+6. **Open your browser**
+   - Navigate to `http://localhost:3000`
+   - Click on a ROM to start playing!
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+Create a `.env` file in the project root (see `.env.example`):
+
+```env
+# Server Configuration
+PORT=3000
+NODE_ENV=development
+
+# Paths (optional - defaults shown)
+# ROMS_DIR=./data/roms
+# PUBLIC_DIR=./public
+# DB_PATH=./data.sqlite
+
+# Security (optional - defaults shown)
+# CORS_ORIGIN=http://localhost:3000
+# RATE_LIMIT_WINDOW_MS=900000
+# RATE_LIMIT_MAX=100
+```
+
+### NPM Scripts
+
+- `npm start` - Start the server (defaults to development)
+- `npm run dev` - Start in development mode
+- `npm run prod` - Start in production mode
+
+## 📡 API Documentation
+
+### Health Check
+```
+GET /api/health
+```
+Returns server status and timestamp.
+
+**Response:**
+```json
+{
+  "status": "ok",
+  "timestamp": "2025-12-18T12:00:00.000Z",
+  "environment": "development"
+}
+```
+
+### List ROMs
+```
+GET /api/roms
+```
+Returns a list of available `.gba` ROM files.
+
+**Response:**
+```json
+{
+  "roms": [
+    "Pokemon - Fire Red Version.gba",
+    "Pokemon - Ruby Version.gba"
+  ]
+}
+```
+
+### Log ROM Play
+```
+POST /api/rom-play
+Content-Type: application/json
+
+{
+  "romName": "Pokemon - Fire Red Version.gba"
+}
+```
+Logs a ROM play event to the database.
+
+**Response:**
+```json
+{
+  "ok": true
+}
+```
+
+### Get ROM Statistics
+```
+GET /api/rom-stats
+```
+Returns play statistics for all ROMs.
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "rom_name": "Pokemon - Fire Red Version.gba",
+      "play_count": 5,
+      "last_played": "2025-12-18T12:00:00.000Z"
+    }
+  ]
+}
+```
+
+## 🏗 Development Best Practices
+
+### Node.js Backend
+
+✅ **Modular Architecture**: Separated concerns into config, middleware, routes, and database modules  
+✅ **Error Handling**: Custom `AppError` class and global error handler middleware  
+✅ **Environment Variables**: Centralized configuration using `dotenv`  
+✅ **Security**: Helmet, rate limiting, CORS, input validation, and sanitization  
+✅ **Async/Await**: Modern async patterns with proper error handling  
+✅ **Database**: SQLite with WAL mode for better concurrency  
+✅ **Graceful Shutdown**: Handles SIGTERM and SIGINT signals
+
+### React Frontend
+
+✅ **Component Structure**: Separated into logical, reusable components  
+✅ **Custom Hooks**: `useSmoothScroll` for navigation behavior  
+✅ **Error Boundaries**: Catches React errors and displays fallback UI  
+✅ **Loading States**: Proper loading and error states for async operations  
+✅ **Accessibility**: ARIA labels and semantic HTML  
+✅ **Performance**: Lazy loading for iframes, proper cleanup in useEffect
+
+### Code Quality
+
+✅ **Consistent Naming**: Clear, descriptive variable and function names  
+✅ **Comments**: JSDoc-style comments for functions and modules  
+✅ **Error Handling**: Try-catch blocks and proper error propagation  
+✅ **Input Validation**: Server-side validation for all user inputs  
+✅ **Security**: No XSS vulnerabilities, proper sanitization
+
+## 📝 Roadmap
+
+### Completed ✅
+
+1. ✅ Integrated a simple UX-design with only the necessary components to play a ROM with the JS emulator (20-11-2025)
+2. ✅ Added a basic EmulatorJS-powered GBA player so you can upload a `.gba` ROM and play it in the browser (18-12-2025)
+3. ✅ Updated the main page to a modern single-page React-powered layout with an EmulatorJS play area and improved UX styling (18-12-2025)
+4. ✅ Integrated a small SQLite database with NodeJS to log ROM play events and exposed simple stats APIs (18-12-2025)
+5. ✅ Improved web security and hardening using Helmet, rate limiting, safer CORS, and an explicit error handler (18-12-2025)
+6. ✅ Refactored backend to follow Node.js best practices: modular structure, proper error handling, environment variables, middleware organization (18-12-2025)
+7. ✅ Refactored frontend to follow React best practices: component structure, custom hooks, error boundaries, loading states (18-12-2025)
+8. ✅ Added configuration files: `.env.example`, improved `.gitignore`, npm scripts (18-12-2025)
+
+### Future Enhancements 🔮
+
+- [ ] Add user authentication and profiles
+- [ ] Implement save state functionality
+- [ ] Add ROM metadata and cover art
+- [ ] Create admin dashboard for statistics
+- [ ] Add multiplayer support
+- [ ] Implement ROM favorites/bookmarks
+- [ ] Add keyboard shortcuts for emulator controls
+- [ ] Create Docker containerization
+- [ ] Add unit and integration tests
+- [ ] Implement CI/CD pipeline
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these guidelines:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Code Style
+
+- Use consistent indentation (2 spaces)
+- Follow existing naming conventions
+- Add comments for complex logic
+- Write clear commit messages
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🙏 Acknowledgments
+
+- [EmulatorJS](https://github.com/EmulatorJS/EmulatorJS) - Browser-based emulator
+- [React](https://react.dev/) - UI library
+- [Express.js](https://expressjs.com/) - Web framework
+- Pokémon and all related content © Nintendo/Creatures Inc./GAME FREAK inc.
+
+## 📞 Support
+
+For issues, questions, or suggestions, please open an issue on GitHub.
+
+---
+
+**Built with ❤️ and Bulbasaur** 🍃

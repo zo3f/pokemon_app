@@ -4,7 +4,10 @@
   "description": "Bulbasaur fan site with GBA emulator, Node.js backend, and basic security/database integration.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "NODE_ENV=development node server.js",
+    "prod": "NODE_ENV=production node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "pokemon",
@@ -17,13 +20,11 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^4.19.2",
-    "helmet": "^7.0.0",
     "express-rate-limit": "^7.4.0",
-    "sqlite3": "^5.1.7",
-    "cors": "^2.8.5"
+    "helmet": "^7.0.0",
+    "sqlite3": "^5.1.7"
   }
 }
-
-
-

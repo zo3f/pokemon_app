@@ -172,6 +172,40 @@ body {
     color: #9bb9af;
 }
 
+.rom-loading {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #6de38a;
+    text-align: center;
+    padding: 10px;
+}
+
+.rom-error {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #e74c3c;
+    text-align: center;
+    padding: 10px;
+    background: rgba(231, 76, 60, 0.1);
+    border-radius: 8px;
+}
+
+.error-boundary {
+    padding: 40px 20px;
+    text-align: center;
+    color: #f5f7fb;
+}
+
+.error-boundary h2 {
+    color: #e74c3c;
+    margin-bottom: 16px;
+}
+
+.error-boundary p {
+    margin-bottom: 20px;
+    color: #d7f2e4;
+}
+
 .emulator-controls {
     display: flex;
     flex-wrap: wrap;

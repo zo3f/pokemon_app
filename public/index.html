@@ -5,150 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bulbasaur's World · GBA Playground</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="favicon.ico" type="image/x-icon"> <!-- Favicon -->
-    <!-- React + ReactDOM via CDN for a simple SPA-style UI -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <!-- React + ReactDOM via CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Helper functions (smooth scroll, logging) -->
-    <script src="script.js" defer></script>
+    <!-- Helper functions (logging) -->
+    <script src="script.js"></script>
 </head>
 <body>
     <div id="root"></div>
 
-    <!-- Simple React SPA using JSX compiled by Babel in the browser -->
+    <!-- React Application Bundle -->
+    <script type="text/babel" src="app.bundle.js"></script>
+
+    <!-- Initialize React App -->
     <script type="text/babel">
-        const { useEffect, useState } = React;
+        // Initialize React application after bundle loads
+        function initApp() {
+            if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
+                console.error('React or ReactDOM not loaded!');
+                document.getElementById('root').innerHTML = 
+                    '<div style="padding: 20px; color: red;">Error: React failed to load. Please check your internet connection.</div>';
+                return;
+            }
 
-        function App() {
-            const [roms, setRoms] = useState([]);
-            const [selectedRomUrl, setSelectedRomUrl] = useState('');
-            const [selectedRomName, setSelectedRomName] = useState('');
+            if (typeof App === 'undefined') {
+                console.error('App component not loaded!');
+                document.getElementById('root').innerHTML = 
+                    '<div style="padding: 20px; color: red;">Error: Application bundle failed to load. Please refresh the page.</div>';
+                return;
+            }
 
-            useEffect(() => {
-                // Smooth scrolling for nav links
-                if (window.setupSmoothScroll) {
-                    window.setupSmoothScroll();
-                }
+            const rootElement = document.getElementById('root');
+            if (!rootElement) {
+                console.error('Root element not found!');
+                return;
+            }
 
-                // Load available ROMs from the server
-                fetch('/api/roms')
-                    .then((res) => res.json())
-                    .then((data) => {
-                        setRoms(Array.isArray(data.roms) ? data.roms : []);
-                    })
-                    .catch(() => {
-                        // Ignore errors; UI will show an empty message.
-                    });
-            }, []);
-
-            return (
-                <div className="app-root">
-                    <header className="app-header">
-                        <div className="logo-title">
-                            <img src="bulbasaur_image.png" alt="Bulbasaur" className="logo-icon" />
-                            <div>
-                                <h1 className="app-title">Bulbasaur&apos;s World</h1>
-                                <p className="app-subtitle">
-                                    Play classic GBA games in a cozy Pokémon-inspired hub.
-                                </p>
-                            </div>
-                        </div>
-                        <nav className="main-nav">
-                            <ul className="nav-links">
-                                <li><a href="#about" className="nav-link">About</a></li>
-                                <li><a href="#games" className="nav-link">Play GBA</a></li>
-                                <li><a href="#rom-info" className="nav-link">ROM Info</a></li>
-                            </ul>
-                        </nav>
-                    </header>
-
-                    <main className="main-layout">
-                        <section id="about" className="card card-about">
-                            <h2>About Bulbasaur</h2>
-                            <p>Bulbasaur is a dual-type Grass/Poison Pokémon known for its adorable appearance and unique features.</p>
-                            <p>Behind the cute face is a tough little dinosaur vibe. That mix of charm and strength is exactly why Bulbasaur is my favorite starter.</p>
-                            <p className="highlight-text">
-                                This app is a small playground to learn JavaScript, Node, React, and modern front-end techniques using Bulbasaur as the mascot.
-                            </p>
-                        </section>
-
-                        <section id="games" className="card card-emulator">
-                            <h2>Play Game Boy Advance Games</h2>
-                            <p className="section-description">
-                                Drop your <strong>.gba</strong> files into the server&apos;s <code>roms/</code> folder and click a game below to start playing in the browser.
-                            </p>
-
-                            <div className="rom-list">
-                                {roms.length === 0 ? (
-                                    <p className="rom-empty">
-                                        No ROMs found. Add <code>.gba</code> files to the <code>roms/</code> folder on the server to see them here.
-                                    </p>
-                                ) : (
-                                    roms.map((name) => (
-                                        <button
-                                            key={name}
-                                            type="button"
-                                            className={
-                                                'rom-chip' +
-                                                (selectedRomUrl === `/roms/${encodeURIComponent(name)}` ? ' rom-chip--active' : '')
-                                            }
-                                            onClick={() => {
-                                                const url = `/roms/${encodeURIComponent(name)}`;
-                                                setSelectedRomUrl(url);
-                                                setSelectedRomName(name);
-                                                if (window.logRomPlay) {
-                                                    window.logRomPlay(name);
-                                                }
-                                            }}
-                                        >
-                                            {name}
-                                        </button>
-                                    ))
-                                )}
-                            </div>
-
-                            <div className="emulator-frame">
-                                {selectedRomUrl ? (
-                                    <>
-                                        <div className="now-playing">
-                                            Now playing: <span>{selectedRomName}</span>
-                                        </div>
-                                        <iframe
-                                            title="GBA Emulator"
-                                            className="emulator-iframe"
-                                            src={`/emulator.html?rom=${encodeURIComponent(selectedRomUrl)}`}
-                                            frameBorder="0"
-                                            allowFullScreen
-                                        ></iframe>
-                                    </>
-                                ) : (
-                                    <p className="emulator-placeholder">
-                                        Choose a ROM from the list above to start playing.
-                                    </p>
-                                )}
-                            </div>
-                        </section>
-                    </main>
-
-                    <section id="rom-info" className="card card-rom-info">
-                        <h2>ROM Usage & Tips</h2>
-                        <ul className="info-list">
-                            <li>Use your own legally obtained backups of games you own.</li>
-                            <li>ROMs never leave your device; they are loaded directly from your browser.</li>
-                            <li>ROM play events are logged in a small SQLite database on the server for learning/demo purposes.</li>
-                        </ul>
-                    </section>
-
-                    <footer className="app-footer">
-                        <p>© 2025 Bulbasaur Fan Site · Built with Node.js, React, SQLite, and EmulatorJS</p>
-                    </footer>
-                </div>
-            );
+            try {
+                const root = ReactDOM.createRoot(rootElement);
+                root.render(<App />);
+            } catch (err) {
+                console.error('Failed to render React app:', err);
+                rootElement.innerHTML = 
+                    '<div style="padding: 20px; color: red;">Error rendering application. Please refresh the page.</div>';
+            }
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        // Wait for DOM and scripts to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(initApp, 300);
+            });
+        } else {
+            setTimeout(initApp, 300);
+        }
     </script>
 </body>
 </html>

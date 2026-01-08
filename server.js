@@ -1,137 +1,107 @@
+/**
+ * Main server file
+ * Express.js application entry point following best practices
+ */
+
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const cors = require('cors');
-const { logRomPlay, logSecurityEvent, getRomStats } = require('./db');
+const config = require('./config');
+const { helmetConfig, corsConfig, apiLimiter } = require('./middleware/security');
+const apiRoutes = require('./routes/api');
+const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
 const app = express();
-const port = process.env.PORT || 3000;
-// Use a "data" folder (as you created) to store ROMs on the server.
-const romsDir = path.join(__dirname, 'data');
 
-// Ensure the ROM directory exists so the API and static hosting work as expected.
-if (!fs.existsSync(romsDir)) {
-  fs.mkdirSync(romsDir, { recursive: true });
+// Ensure ROM directory exists
+if (!fs.existsSync(config.paths.romsDir)) {
+  fs.mkdirSync(config.paths.romsDir, { recursive: true });
+  console.log('Created ROMs directory:', config.paths.romsDir);
 }
 
-// Basic security hardening
+// Security middleware (order matters!)
 app.disable('x-powered-by');
-app.use(helmet());
+app.use(helmetConfig);
+app.use(corsConfig);
 
-// CORS: only allow same-origin and localhost frontends
-app.use(
-  cors({
-    origin: [/^http:\/\/localhost(:\d+)?$/, /^http:\/\/127\.0\.0\.1(:\d+)?$/],
-    methods: ['GET', 'POST'],
-  })
-);
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Rate limiting for API routes
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-app.use(express.json());
-
-// Apply limiter to all /api routes
 app.use('/api', apiLimiter);
 
-// Middleware to serve static files
+// Serve static files with proper headers
 app.use(
-  express.static('public', {
-    maxAge: '1h',
+  express.static(config.paths.publicDir, {
+    maxAge: config.server.env === 'production' ? '1h' : '0',
     setHeaders: (res, filePath) => {
-      // Simple hardening: no sniffing, and basic cache control is already set above.
       res.setHeader('X-Content-Type-Options', 'nosniff');
       if (filePath.endsWith('index.html')) {
-        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
       }
     },
   })
 );
 
-// Serve static ROM files from the local "roms" folder (click-and-play)
+// Serve ROM files
 app.use(
   '/roms',
-  express.static(romsDir, {
+  express.static(config.paths.romsDir, {
     immutable: true,
     maxAge: '1y',
     index: false,
+    setHeaders: (res) => {
+      res.setHeader('Content-Type', 'application/octet-stream');
+    },
   })
 );
 
-// Simple healthcheck
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
+// API routes
+app.use('/api', apiRoutes);
 
-// Log a ROM play event into the SQLite database
-app.post('/api/rom-play', (req, res) => {
-  const { romName } = req.body || {};
-
-  if (!romName || typeof romName !== 'string' || romName.length > 255) {
-    logSecurityEvent('invalid_rom_name', JSON.stringify(req.body || {}));
-    return res.status(400).json({ error: 'Invalid ROM name.' });
-  }
-
-  logRomPlay(romName);
-  return res.status(201).json({ ok: true });
-});
-
-// Get ROM play statistics
-app.get('/api/rom-stats', (req, res) => {
-  getRomStats((err, rows) => {
-    if (err) {
-      console.error('Failed to get rom stats:', err);
-      return res.status(500).json({ error: 'Failed to get stats.' });
-    }
-    res.json({ data: rows });
-  });
-});
-
-// List available ROMs in the "roms" directory
-app.get('/api/roms', (req, res) => {
-  fs.readdir(romsDir, (err, files) => {
-    if (err) {
-      // If the folder somehow doesn't exist, just return an empty list instead of erroring.
-      if (err.code === 'ENOENT') {
-        return res.json({ roms: [] });
-      }
-
-      console.error('Failed to read roms directory:', err.message);
-      logSecurityEvent('roms_dir_error', err.message);
-      return res.status(500).json({ error: 'Failed to list ROMs.' });
-    }
-
-    const roms = (files || []).filter((name) =>
-      name.toLowerCase().endsWith('.gba')
-    );
-
-    res.json({ roms });
-  });
-});
-
-// Fallback: serve SPA index.html for any unknown route that isn't API
+// SPA fallback - serve index.html for non-API routes
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api')) {
     return next();
   }
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(config.paths.publicDir, 'index.html'));
 });
 
-// Global error handler
-app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
-  logSecurityEvent('server_error', err.message || String(err));
-  res.status(500).json({ error: 'Internal server error.' });
+// 404 handler
+app.use(notFoundHandler);
+
+// Global error handler (must be last)
+app.use(errorHandler);
+
+// Start server
+const server = app.listen(config.server.port, () => {
+  console.log(`
+╔═══════════════════════════════════════════════════════╗
+║  Bulbasaur's World - GBA Playground                 ║
+║  Server running at http://localhost:${config.server.port}${' '.repeat(25 - String(config.server.port).length)}║
+║  Environment: ${config.server.env}${' '.repeat(40 - config.server.env.length)}║
+╚═══════════════════════════════════════════════════════╝
+  `);
 });
 
-// Start the server
-app.listen(port, () => {
-  console.log(`Server is running securely at http://localhost:${port}`);
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed.');
+    process.exit(0);
+  });
 });
+
+process.on('SIGINT', () => {
+  console.log('\nSIGINT received, shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed.');
+    process.exit(0);
+  });
+});
+
+module.exports = app;
