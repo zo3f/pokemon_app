@@ -34,43 +34,8 @@
 </head>
 <body>
   <div id="game"></div>
-  <script>
-    // Security: Sanitize URL parameter to prevent XSS
-    const urlParams = new URLSearchParams(window.location.search);
-    const romUrlParam = urlParams.get('rom');
-
-    if (romUrlParam) {
-      // Validate and sanitize ROM URL
-      const sanitizedUrl = String(romUrlParam)
-        .replace(/javascript:/gi, '')
-        .replace(/on\w+\s*=/gi, '')
-        .replace(/<script/gi, '')
-        .trim();
-
-      // Only allow URLs starting with /roms/ to prevent open redirect
-      if (sanitizedUrl && sanitizedUrl.startsWith('/roms/')) {
-        window.EJS_player = '#game';
-        window.EJS_gameUrl = sanitizedUrl;
-        window.EJS_core = 'gba';
-        window.EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
-
-        const script = document.createElement('script');
-        script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
-        script.crossOrigin = 'anonymous';
-        script.onerror = () => {
-          document.body.innerHTML =
-            '<div class="message">Failed to load EmulatorJS. Please check your internet connection.</div>';
-        };
-        document.body.appendChild(script);
-      } else {
-        document.body.innerHTML =
-          '<div class="message">Invalid ROM URL. Please go back and choose a game.</div>';
-      }
-    } else {
-      document.body.innerHTML =
-        '<div class="message">No ROM specified. Please go back and choose a game.</div>';
-    }
-  </script>
+  <!-- Emulator initialization script - extracted for maintainability -->
+  <script src="emulator-init.js"></script>
 </body>
 </html>
 

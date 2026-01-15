@@ -21,7 +21,11 @@ const helmetConfig = helmet({
       defaultSrc: ["'self'"],
       scriptSrc: [
         "'self'",
-        "'unsafe-inline'", // Required for Babel standalone - consider moving to nonce in production
+        // Note: 'unsafe-inline' is required for Babel Standalone which compiles JSX in the browser
+        // This is a known limitation when using Babel Standalone without a build step
+        // Alternatives: Use nonces (requires server-side rendering) or move to a build process (webpack/vite)
+        // For this educational project, unsafe-inline is acceptable as EmulatorJS also requires it
+        "'unsafe-inline'",
         'https://unpkg.com',
         'https://cdn.emulatorjs.org',
       ],

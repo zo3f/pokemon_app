@@ -65,6 +65,8 @@ const initializeTables = () => {
 /**
  * Log a ROM play event
  * @param {string} romName - Name of the ROM file
+ * Note: This function is designed to not throw errors to avoid breaking the app,
+ * but logs errors for debugging purposes in development mode.
  */
 const logRomPlay = (romName) => {
   return new Promise((resolve, reject) => {
@@ -73,15 +75,35 @@ const logRomPlay = (romName) => {
       [romName],
       function (err) {
         if (err) {
-          console.error('Failed to log rom play:', err.message);
+          // Log error with context for debugging
+          const errorMessage = `Failed to log rom play for "${romName}": ${err.message}`;
+          console.error(errorMessage);
+          
+          // In development, also log stack trace for better debugging
+          if (config.server.env === 'development') {
+            console.error('Stack trace:', err.stack);
+          }
+          
+          // Log to security events for monitoring
+          logSecurityEvent('rom_play_log_error', errorMessage);
+          
           reject(err);
         } else {
+          if (config.server.env === 'development') {
+            console.log(`Successfully logged rom play: ${romName} (ID: ${this.lastID})`);
+          }
           resolve(this.lastID);
         }
       }
     );
-  }).catch(() => {
-    // Fail silently for logging - don't break the app if logging fails
+  }).catch((err) => {
+    // Don't break the app if logging fails, but ensure error is visible for debugging
+    // This is intentional - logging failures shouldn't prevent gameplay
+    if (config.server.env === 'development') {
+      console.warn('ROM play logging failed (non-critical):', err.message);
+    }
+    // Return undefined to indicate failure without throwing
+    return undefined;
   });
 };
 

@@ -46,7 +46,12 @@ window.logRomPlay = function logRomPlay(romName) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ romName: sanitizedName }),
-    }).catch(() => {
-        // Ignore logging failures so the game can still be played.
+    }).catch((error) => {
+        // Logging failures shouldn't break gameplay, but log for debugging
+        // In development, show the error; in production, log silently
+        if (window.console && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+            console.warn('Failed to log ROM play event (non-critical):', error.message);
+        }
+        // Game can still be played even if logging fails
     });
 }

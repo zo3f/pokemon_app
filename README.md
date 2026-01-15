@@ -62,13 +62,18 @@ pokemon_app/
 │   ├── index.html        # Entry point HTML
 │   ├── styles.css        # Global styles
 │   ├── script.js         # Helper functions
-│   └── emulator.html     # EmulatorJS iframe page
+│   ├── app.bundle.js     # React application bundle
+│   ├── emulator.html     # EmulatorJS iframe page
+│   └── emulator-init.js  # EmulatorJS initialization (extracted from HTML)
 ├── data/                  # Data directory
 │   └── roms/            # Place .gba ROM files here
 ├── server.js             # Express server entry point
 ├── package.json          # Dependencies and scripts
 ├── .env.example         # Environment variables template
-└── README.md            # This file
+├── docs/                 # Documentation
+│   └── CSP_UNSAFE_INLINE.md  # CSP unsafe-inline explanation
+├── README.md            # This file
+└── SECURITY.md          # Security documentation
 ```
 
 ## 🚀 Getting Started
@@ -246,7 +251,9 @@ Returns play statistics for all ROMs.
 ✅ **Comments**: JSDoc-style comments for functions and modules  
 ✅ **Error Handling**: Try-catch blocks and proper error propagation  
 ✅ **Input Validation**: Server-side validation for all user inputs  
-✅ **Security**: No XSS vulnerabilities, proper sanitization
+✅ **Security**: No XSS vulnerabilities, proper sanitization  
+✅ **Error Logging**: Improved error visibility in development, structured logging in production  
+✅ **Code Organization**: Separated inline scripts into external files for better maintainability
 
 ## 📝 Roadmap
 
@@ -260,6 +267,9 @@ Returns play statistics for all ROMs.
 6. ✅ Refactored backend to follow Node.js best practices: modular structure, proper error handling, environment variables, middleware organization (18-12-2025)
 7. ✅ Refactored frontend to follow React best practices: component structure, custom hooks, error boundaries, loading states (18-12-2025)
 8. ✅ Added configuration files: `.env.example`, improved `.gitignore`, npm scripts (18-12-2025)
+9. ✅ Improved error logging visibility (development mode shows detailed errors, production logs to security events) (18-12-2025)
+10. ✅ Extracted inline JavaScript from `emulator.html` to separate `emulator-init.js` file for better maintainability (18-12-2025)
+11. ✅ Documented CSP `unsafe-inline` usage and provided alternatives for future improvements (18-12-2025)
 
 ### Future Enhancements 🔮
 
@@ -314,6 +324,8 @@ This application implements comprehensive security measures following OWASP best
 - Path traversal protection
 - CORS configuration
 - Request size limits
+
+**Note on CSP `unsafe-inline`**: The application currently uses `'unsafe-inline'` in the Content Security Policy due to Babel Standalone requirements. This is documented in [docs/CSP_UNSAFE_INLINE.md](./docs/CSP_UNSAFE_INLINE.md) with security mitigations and future improvement options.
 
 ## 📞 Support
 
